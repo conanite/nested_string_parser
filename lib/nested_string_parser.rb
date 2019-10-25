@@ -36,7 +36,7 @@ module NestedStringParser
   #     K
   #
   def self.from_rows rows, root=new_node
-    rows.each { |row| row.inject(root) { |node, name| node.find(name) || (node.nb?(name) && node.nest_child(new_node name)) } }
+    rows.each { |row| row.inject(root) { |node, name| node.find(name) || (node.nb?(name) && node.nest_child(new_node name)) || node } }
     root
   end
 
