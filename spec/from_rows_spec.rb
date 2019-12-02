@@ -24,19 +24,19 @@ RSpec::describe NestedStringParser do
   end
 
   QUARKS_IN_ROWS = [
-                    %w{ quarks G1 up                 },
-                    %w{ quarks G1 down               },
-                    %w{ quarks G2 strange            },
-                    %w{ quarks G2 charmed            },
-                    %w{ quarks G3 top      \         },
-                    %w{ quarks G3 bottom             },
-                    %w{ leptons G1 electron          },
-                    %w{ leptons G1 electron-neutrino },
-                    %w{ leptons G2 muon              },
-                    %w{ leptons G2 muon-neutrino  \  },
-                    %w{ leptons G3 tau               },
-                    %w{ leptons G3 tau-neutrino      },
-                   ]
+    %w{ quarks G1 up                 },
+    %w{ quarks G1 down               },
+    %w{ quarks G2 strange            },
+    %w{ quarks G2 charmed            },
+    %w{ quarks G3 top      \         },
+    %w{ quarks G3 bottom             },
+    %w{ leptons G1 electron          },
+    %w{ leptons G1 electron-neutrino },
+    %w{ leptons G2 muon              },
+    %w{ leptons G2 muon-neutrino  \  },
+    %w{ leptons G3 tau               },
+    %w{ leptons G3 tau-neutrino      },
+  ]
 
   it "parses a whole csv file" do
     node = NestedStringParser.from_rows QUARKS_IN_ROWS
@@ -61,19 +61,19 @@ RSpec::describe NestedStringParser do
   end
 
   QUARKS_IN_SPARSE_ROWS = [
-                    %w{ quarks  G1 up                 },
-                    %w{ \       \  down               },
-                    %w{ \       G2 strange            },
-                    %w{ \       \  charmed            },
-                    %w{ \       G3 top      \         },
-                    %w{ \       \  bottom             },
-                    %w{ leptons G1 electron          },
-                    %w{ \       \  electron-neutrino },
-                    %w{ \       G2 muon              },
-                    %w{ \       \  muon-neutrino  \  },
-                    %w{ \       G3 tau               },
-                    %w{ \       \  tau-neutrino      },
-                   ]
+    %w{ quarks  G1 up                 },
+    %w{ \       \  down               },
+    %w{ \       G2 strange            },
+    %w{ \       \  charmed            },
+    %w{ \       G3 top      \         },
+    %w{ \       \  bottom             },
+    %w{ leptons G1 electron          },
+    %w{ \       \  electron-neutrino },
+    %w{ \       G2 muon              },
+    %w{ \       \  muon-neutrino  \  },
+    %w{ \       G3 tau               },
+    %w{ \       \  tau-neutrino      },
+  ]
 
   it "parses a whole csv file with parent-items inherited from previous row" do
     node = NestedStringParser.from_rows QUARKS_IN_SPARSE_ROWS
@@ -95,5 +95,60 @@ RSpec::describe NestedStringParser do
     expect(leptons.children.map(&:nesting)).to eq [1,1,1]
     expect(leptons.children.map { |q| q.children.map(&:nesting) }).to eq [[2,2], [2,2], [2,2]]
     expect(leptons.children.map { |q| q.children.map(&:value)   }).to eq [%w{electron electron-neutrino}, %w{muon muon-neutrino}, %w{tau tau-neutrino}]
+  end
+
+  ENGLISH_CURRICULUM = [
+    ["English", "Grammar"   , "Verbs"     , "Past"         ],
+    [""       , ""          , ""          , "Present"      ],
+    [""       , ""          , ""          , "Future"       ],
+    [""       , ""          , ""          , ""             ],
+    [""       , ""          , "Adjectives", ""             ],
+    [""       , ""          , ""          , ""             ],
+    [""       , ""          , "Nouns"     , "Proper"       ],
+    [""       , ""          , ""          , "Pronouns"     ],
+    [""       , ""          , ""          , "Other"        ],
+    [""       , ""          , ""          , ""             ],
+    [""       , ""          , "Sentences" , "Introduction" ],
+    [""       , ""          ,  ""         , "Structure"    ],
+    [""       , ""          ,  ""         , "Clauses"      ],
+    [""       , ""          ,  ""         , "Conjunctions" ],
+    [""       , ""          , ""          , ""             ],
+    [""       , "Literature", "Stories"   , ""             ],
+    [""       , ""          , "Novels"    , ""             ],
+    [""       , ""          , "Drama"     , ""             ],
+    [""       , ""          , "Poetry"    , ""             ],
+    [""       , ""          , "Criticism" , ""             ],
+  ]
+
+  it "parses a whole csv file with parent-items inherited from previous row, ignoring empty rows and empty trailing cells" do
+    node = NestedStringParser.from_rows ENGLISH_CURRICULUM
+
+    expected = <<FORMATTED
+
+  English
+    Grammar
+      Verbs
+        Past
+        Present
+        Future
+      Adjectives
+      Nouns
+        Proper
+        Pronouns
+        Other
+      Sentences
+        Introduction
+        Structure
+        Clauses
+        Conjunctions
+    Literature
+      Stories
+      Novels
+      Drama
+      Poetry
+      Criticism
+FORMATTED
+
+    expect(node.format("")).to eq expected
   end
 end

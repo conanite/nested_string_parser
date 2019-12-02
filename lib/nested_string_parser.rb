@@ -51,8 +51,11 @@ module NestedStringParser
     rows.each { |row|
       # row.inject(root) { |node, name| node.find(name) || (node.nb?(name) && node.nest_child(new_node name)) || node } }
       node = root
+      row_has_a_name = false
       row.length.times { |i|
-        previous_row[i] = name = root.nb?(row[i]) ? row[i] : (previous_row && previous_row[i])
+        cell_has_a_name = root.nb?(row[i])
+        row_has_a_name ||= cell_has_a_name
+        previous_row[i] = name = cell_has_a_name ? row[i] : (!row_has_a_name && previous_row[i])
         node = node.find(name) || (node.nb?(name) && node.nest_child(new_node name)) || node
       }
     }
