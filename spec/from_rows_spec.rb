@@ -38,8 +38,45 @@ RSpec::describe NestedStringParser do
                     %w{ leptons G3 tau-neutrino      },
                    ]
 
-  it "parses a single item" do
+  it "parses a whole csv file" do
     node = NestedStringParser.from_rows QUARKS_IN_ROWS
+
+    expect(node.value                ).to eq nil
+    expect(node.nesting              ).to eq(-1)
+    expect(node.children.map(&:value)).to eq %w{ quarks leptons }
+
+    quarks = node.children[0]
+    expect(quarks.nesting                ).to eq 0
+    expect(quarks.children.map(&:value)  ).to eq %w{ G1 G2 G3 }
+    expect(quarks.children.map(&:nesting)).to eq [1,1,1]
+    expect(quarks.children.map { |q| q.children.map(&:nesting) }).to eq [[2,2], [2,2], [2,2]]
+    expect(quarks.children.map { |q| q.children.map(&:value)   }).to eq [%w{up down}, %w{strange charmed}, %w{top bottom}]
+
+    leptons = node.children[1]
+    expect(leptons.nesting                ).to eq 0
+    expect(leptons.children.map(&:value)  ).to eq %w{ G1 G2 G3 }
+    expect(leptons.children.map(&:nesting)).to eq [1,1,1]
+    expect(leptons.children.map { |q| q.children.map(&:nesting) }).to eq [[2,2], [2,2], [2,2]]
+    expect(leptons.children.map { |q| q.children.map(&:value)   }).to eq [%w{electron electron-neutrino}, %w{muon muon-neutrino}, %w{tau tau-neutrino}]
+  end
+
+  QUARKS_IN_SPARSE_ROWS = [
+                    %w{ quarks  G1 up                 },
+                    %w{ \       \  down               },
+                    %w{ \       G2 strange            },
+                    %w{ \       \  charmed            },
+                    %w{ \       G3 top      \         },
+                    %w{ \       \  bottom             },
+                    %w{ leptons G1 electron          },
+                    %w{ \       \  electron-neutrino },
+                    %w{ \       G2 muon              },
+                    %w{ \       \  muon-neutrino  \  },
+                    %w{ \       G3 tau               },
+                    %w{ \       \  tau-neutrino      },
+                   ]
+
+  it "parses a whole csv file with parent-items inherited from previous row" do
+    node = NestedStringParser.from_rows QUARKS_IN_SPARSE_ROWS
 
     expect(node.value                ).to eq nil
     expect(node.nesting              ).to eq(-1)

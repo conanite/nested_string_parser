@@ -22,7 +22,18 @@ module NestedStringParser
   # | A | E | G |
   # | B | H | J |
   # | B | H | K |
+  #
   # same as
+  #
+  # | A | B | C |
+  # |   |   | D |
+  # |   | E | F |
+  # |   |   | G |
+  # | B | H | J |
+  # |   |   | K |
+  #
+  # same as
+  #
   # A
   #   B
   #     C
@@ -36,7 +47,15 @@ module NestedStringParser
   #     K
   #
   def self.from_rows rows, root=new_node
-    rows.each { |row| row.inject(root) { |node, name| node.find(name) || (node.nb?(name) && node.nest_child(new_node name)) || node } }
+    previous_row = []
+    rows.each { |row|
+      # row.inject(root) { |node, name| node.find(name) || (node.nb?(name) && node.nest_child(new_node name)) || node } }
+      node = root
+      row.length.times { |i|
+        previous_row[i] = name = root.nb?(row[i]) ? row[i] : (previous_row && previous_row[i])
+        node = node.find(name) || (node.nb?(name) && node.nest_child(new_node name)) || node
+      }
+    }
     root
   end
 
