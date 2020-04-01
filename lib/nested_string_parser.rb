@@ -4,7 +4,7 @@ module NestedStringParser
   class Node
     attr_accessor :nesting, :value, :parent, :children
 
-    def initialize     s=nil ; @nesting, @value, @children = (s ? s.gsub(/^( *)[^ ].*/, '\1').length : -1), (s && s.strip), [] ; end
+    def initialize     s=nil ; @nesting, @value, @children = (s ? s.gsub(/^( *)[^ ].*/, '\1').length : -1), (s.to_s.strip), [] ; end
     def add_child?     child ; (child.nesting > self.nesting) ? add_child(child) : parent.add_child?(child)                    ; end
     def add_child      child ; @children << child ; child.parent = self ; child                                                ; end
     def nest_child     child ; add_child(child).tap { |c| c.nesting = nesting + 1 }                                            ; end
@@ -32,7 +32,7 @@ module NestedStringParser
   # | B | H | J |
   # |   |   | K |
   #
-  # same as
+  # same as text
   #
   # A
   #   B
