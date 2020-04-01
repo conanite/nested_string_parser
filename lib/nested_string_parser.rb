@@ -8,7 +8,7 @@ module NestedStringParser
     def add_child?     child ; (child.nesting > self.nesting) ? add_child(child) : parent.add_child?(child)                    ; end
     def add_child      child ; @children << child ; child.parent = self ; child                                                ; end
     def nest_child     child ; add_child(child).tap { |c| c.nesting = nesting + 1 }                                            ; end
-    def nb?              str ; str && str.strip != ""                                                                          ; end
+    def nb?              str ; str && str.to_s.strip != ""                                                                     ; end
     def accept str=nil, *ss ; nb?(str) ? add_child?(Node.new(str)).accept(*ss) : (ss.size > 0 ? self.accept(*ss) : self)       ; end
     def root                 ; parent ? parent.root : self                                                                     ; end
     def format        indent ; %[#{indent}#{value}\n#{children.map { |c| c.format "#{indent}  " }.join}]                       ; end
